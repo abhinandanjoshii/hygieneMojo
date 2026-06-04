@@ -38,11 +38,12 @@ public class HygieneMojo extends AbstractMojo{
         validateLargeFiles();
     }
 
-    private NotImplementedException validateLargeFiles() {
+    private void validateLargeFiles() {
         getLog().info("Scanning project for files greater than "
         + (MAX_FILE_SIZE_IN_BYTES/1024/1024) + " MB"
         );
-        return new NotImplementedException("NOT IMPLEMENTED");
+
+        scanDirectory(project.getBasedir());
     }
 
     private void validateFileExists(List<String> fileNames){
@@ -89,6 +90,48 @@ public class HygieneMojo extends AbstractMojo{
             getLog().info("plugin version is " + plugin.getVersion());
             if(plugin.getVersion() == null || plugin.getVersion().isBlank()){
                 getLog().warn("Plugin Missing Version: " +plugin.getArtifactId());
+            }
+        }
+    }
+
+    private void scanDirectory(File directory){
+
+        File[] files=directory.listFiles();
+
+        if(files == null) return;
+
+        for(File file : files){
+
+            if(file.isDirectory()){
+
+                if (file.getName().equals("target")
+                        || file.getName().equals(".git")
+                        || file.getName().equals(".idea")) {
+                    continue;
+                }
+
+                scanDirectory(file);
+            }
+
+            else{
+//                getLog().info(
+//                        "Checking: " + file.getAbsolutePath()
+//                );
+                long fileSize = file.length();
+
+                if(fileSize > MAX_FILE_SIZE_IN_BYTES){
+
+                    double sizeInMb = (double) fileSize/(1024 *1024);
+
+                    getLog().warn(
+                            "Large File Detected: "
+                            + file.getAbsolutePath()
+                            + " ("
+                            +String.format("%.2f",sizeInMb)
+                            + " MB"
+                    );
+                }
+
             }
         }
     }
