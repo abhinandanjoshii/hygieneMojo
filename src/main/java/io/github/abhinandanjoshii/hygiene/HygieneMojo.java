@@ -1,5 +1,6 @@
 package io.github.abhinandanjoshii.hygiene;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.maven.plugin.AbstractMojo;
 import java.io.File;
 import java.util.List;
@@ -12,12 +13,13 @@ import org.apache.maven.project.MavenProject;
 @Mojo(name="check")
 public class HygieneMojo extends AbstractMojo{
 
+    // NOTE : Hardcoding For TESTING.
+    private static final long MAX_FILE_SIZE_IN_BYTES = 10*1024*1024;
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
     @Override
     public void execute(){
-        getLog().info("project root : "+ project.getBasedir().getAbsolutePath());
         getLog().info("HygieneMojo running");
         validateFileExists(List.of(
                 "README.md",
@@ -31,9 +33,16 @@ public class HygieneMojo extends AbstractMojo{
                         "LICENSE.md"
                 )
         );
-        getLog().info("hello");
         validateSnapshotDependency();
         validatePluginVersions();
+        validateLargeFiles();
+    }
+
+    private NotImplementedException validateLargeFiles() {
+        getLog().info("Scanning project for files greater than "
+        + (MAX_FILE_SIZE_IN_BYTES/1024/1024) + " MB"
+        );
+        return new NotImplementedException("NOT IMPLEMENTED");
     }
 
     private void validateFileExists(List<String> fileNames){
