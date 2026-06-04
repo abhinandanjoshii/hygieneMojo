@@ -15,19 +15,24 @@ public class HygieneMojo extends AbstractMojo{
     @Override
     public void execute(){
         getLog().info("HygieneMojo running");
+        checker("README.md");
+        checker("LICENSE");
+        getLog().info("project root : "+ project.getBasedir().getAbsolutePath());
+    }
 
-        File readme = new File(
+    public void checker(String filename){
+        File file = new File(
                 project.getBasedir(),
-                "README.md"
+                filename
         );
 
-        if(readme.exists()){
-            getLog().info("README.md found.");
+        if(file.exists()){
+            getLog().info(filename+" found.");
         }
-        else {
-            getLog().warn("README.md missing.");
+        else{
+            getLog().warn(filename+" missing.");
         }
-        getLog().info("project root : "+ project.getBasedir().getAbsolutePath());
+
     }
 
 }
