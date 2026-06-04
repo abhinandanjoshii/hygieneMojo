@@ -1,1 +1,4 @@
 /Users/lushcoder/IdeaProjects/hygieneMojo/src/main/java/io/github/abhinandanjoshii/hygiene/HygieneMojo.java
+/Users/lushcoder/IdeaProjects/hygieneMojo/src/main/java/io/github/abhinandanjoshii/hygiene/validator/FileExistenceValidator.java
+/Users/lushcoder/IdeaProjects/hygieneMojo/src/main/java/io/github/abhinandanjoshii/hygiene/validator/LargeFileValidator.java
+/Users/lushcoder/IdeaProjects/hygieneMojo/src/main/java/io/github/abhinandanjoshii/hygiene/validator/SnapshotDependencyValidator.java
