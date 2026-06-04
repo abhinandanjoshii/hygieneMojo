@@ -44,13 +44,19 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
-      <artifactId>maven-plugin-api</artifactId>
+      <artifactId>maven-model</artifactId>
       <type>jar</type>
-      <version>3.6.3</version>
+      <version>3.9.11</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <type>jar</type>
+      <version>3.6.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
-      <artifactId>maven-model</artifactId>
+      <artifactId>maven-plugin-api</artifactId>
       <type>jar</type>
       <version>3.6.3</version>
     </dependency>
@@ -83,12 +89,6 @@
       <artifactId>jsr250-api</artifactId>
       <type>jar</type>
       <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
-      <type>jar</type>
-      <version>3.2.1</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
