@@ -1,1 +1,4 @@
+io/github/abhinandanjoshii/hygiene/validator/FileExistenceValidator.class
+io/github/abhinandanjoshii/hygiene/validator/LargeFileValidator.class
 io/github/abhinandanjoshii/hygiene/HygieneMojo.class
+io/github/abhinandanjoshii/hygiene/validator/SnapshotDependencyValidator.class
