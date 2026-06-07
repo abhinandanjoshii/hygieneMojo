@@ -29,6 +29,13 @@
       <threadSafe>false</threadSafe>
       <parameters>
         <parameter>
+          <name>maxFileSizeMb</name>
+          <type>int</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
           <name>project</name>
           <type>org.apache.maven.project.MavenProject</type>
           <required>true</required>
@@ -37,6 +44,7 @@
         </parameter>
       </parameters>
       <configuration>
+        <maxFileSizeMb implementation="int" default-value="10">${hygiene.maxFileSizeMb}</maxFileSizeMb>
         <project implementation="org.apache.maven.project.MavenProject" default-value="${project}"/>
       </configuration>
     </mojo>

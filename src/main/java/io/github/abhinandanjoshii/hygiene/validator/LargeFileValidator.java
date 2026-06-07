@@ -6,16 +6,16 @@ import java.io.File;
 
 public class LargeFileValidator {
 
-    private static final long MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
-
-    public static void validate(File projectRoot, Log log){
+    public static void validate(File projectRoot, Log log , int maxFileSizeMb){
+        long maxFileSizeBytes = maxFileSizeMb * 1024L * 1024L;
         scanDirectory(
                 projectRoot,
-                log
+                log,
+                maxFileSizeBytes
         );
     }
 
-    private static void scanDirectory(File directory,Log log){
+    private static void scanDirectory(File directory,Log log, long maxFileSizeBytes){
 
         File[] files = directory.listFiles();
 
@@ -33,7 +33,8 @@ public class LargeFileValidator {
 
                 scanDirectory(
                         file,
-                        log
+                        log,
+                        maxFileSizeBytes
                 );
 
             }
@@ -41,7 +42,7 @@ public class LargeFileValidator {
 
                 long fileSize = file.length();
 
-                if (fileSize > MAX_FILE_SIZE_BYTES) {
+                if (fileSize > maxFileSizeBytes) {
 
                     double sizeInMb =
                             (double) fileSize / (1024 * 1024);

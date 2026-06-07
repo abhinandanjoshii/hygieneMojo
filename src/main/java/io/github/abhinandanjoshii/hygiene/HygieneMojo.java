@@ -15,6 +15,8 @@ public class HygieneMojo extends AbstractMojo{
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
+    @Parameter(property = "hygiene.maxFileSizeMb", defaultValue = "10")
+    private int maxFileSizeMb;
 
     @Override
     public void execute(){
@@ -41,7 +43,8 @@ public class HygieneMojo extends AbstractMojo{
         LargeFileValidator.validate
                 (
                         projectBase,
-                        getLog()
+                        getLog(),
+                        maxFileSizeMb
                 );
     }
 }
