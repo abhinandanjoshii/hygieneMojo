@@ -2,6 +2,7 @@ package io.github.abhinandanjoshii.hygiene;
 
 import io.github.abhinandanjoshii.hygiene.validator.FileExistenceValidator;
 import io.github.abhinandanjoshii.hygiene.validator.LargeFileValidator;
+import io.github.abhinandanjoshii.hygiene.validator.MergeConflictValidator;
 import io.github.abhinandanjoshii.hygiene.validator.SnapshotDependencyValidator;
 import org.apache.maven.plugin.AbstractMojo;
 import java.io.File;
@@ -46,5 +47,6 @@ public class HygieneMojo extends AbstractMojo{
                         getLog(),
                         maxFileSizeMb
                 );
+        MergeConflictValidator.validate();
     }
 }
