@@ -1,0 +1,13 @@
+target/
+.idea/
+*.iml
+out/
+.DS_Store
+.gnupg/
+*.log
+*.tmp
+*.swp
+.mvn/wrapper/maven-wrapper.jar
+*.zip
+*.tar
+*.tar.gz
