@@ -30,8 +30,8 @@ public class MergeConflictValidator {
     );
 
     private static final Set<String> SCANNED_EXTENSIONS = Set.of(
-            ".java",".xml",".yml",".yaml",".properties"
-            ,".json"
+            ".java",".xml",".yml",".yaml",".properties",
+            ".json", ".md", ".txt", ".html", ".sql"
     );
 
     private static final Set<String> SKIP_DIRS = Set.of(

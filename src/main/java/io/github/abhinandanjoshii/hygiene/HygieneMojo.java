@@ -17,8 +17,7 @@ import org.apache.maven.project.MavenProject;
 /**
  * Main Mojo for the hygiene-maven-plugin.
  *
- * <p>Runs all registered hygiene validators against the project directory,
- * including checks.</p>
+ * <p>Runs all registered hygiene validators against the project directory.</p>
  *
  * <p>Usage:</p>
  * <pre>

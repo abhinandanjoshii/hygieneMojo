@@ -7,7 +7,7 @@ import java.io.File;
  * Detects files in the project directory that exceed a configured size threshold.
  *
  * <p>Large files committed to version control bloat repository size and slow down
- * {@code git clone} and CI pipeline times. Skips the {@code target/} build directory.</p>
+ * {@code git clone} and CI pipeline times. Skips the {@code target/}, {@code .git/}, and {@code .idea/} directories.</p>
  */
 public class LargeFileValidator {
 
