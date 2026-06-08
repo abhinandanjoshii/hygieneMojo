@@ -12,8 +12,7 @@ import java.util.regex.Pattern;
 public class HardcodedSecretValidator {
 
     private static final List<Pattern> SECRET_PATTERNS = List.of(
-            // TODO : add more checks for other secrets
-            Pattern.compile("(?i)(password|passwd|pwd)\\s*=\\s*['\"]?[^\\s'\"]{4,}"),
+            Pattern.compile("(?i)(password|passwd|pwd)\\s*[:=]\\s*['\"]?[^\\s'\"]{4,}"),
             Pattern.compile("(?i)(api_key|apikey|api-key)\\s*[:=]\\s*['\"]?[^\\s'\"]{8,}"),
             Pattern.compile("(?i)(secret_key|secret|client_secret)\\s*[:=]\\s*['\"]?[^\\s'\"]{8,}"),
             Pattern.compile("(?i)(token|auth_token|access_token)\\s*[:=]\\s*['\"]?[^\\s'\"]{8,}"),
@@ -67,7 +66,7 @@ public class HardcodedSecretValidator {
                 String line = lines.get(i);
                 for(Pattern pattern : SECRET_PATTERNS){
                     if(pattern.matcher(line).find()){
-                        log.warn("Potencial hardcoded sec"
+                        log.warn("Potential hardcoded sec"
                         + file.getAbsolutePath()
                         +" (line "+ (i+1) + ")");
                         anyFound = true;

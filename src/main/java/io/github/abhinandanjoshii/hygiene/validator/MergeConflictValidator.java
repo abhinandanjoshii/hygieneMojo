@@ -21,19 +21,21 @@ public class MergeConflictValidator {
     );
 
     private static final Set<String> SKIP_DIRS = Set.of(
-            ".target",".gitt", ".idea", "node_modules"
+            ".target",".git", ".idea", "node_modules"
     );
 
 
     public static void validate(File projectRoot, Log log)
     {
         boolean found = scanDirectory(projectRoot,log);
-        // TODO : check for bool and log
+        if (!found) {
+            log.info("No merge conflict markers found.");
+        }
     }
 
     private static boolean scanDirectory(File directory,Log log){
         File[] files = directory.listFiles();
-        //check for empty files
+        if (files == null) return false;
 
         boolean anyFound = false;
 
@@ -68,7 +70,6 @@ public class MergeConflictValidator {
                     }
                 }
             }
-            // return True;
             return anyFound;
         } catch (IOException e) {
             log.debug("Could not read file: " + file.getAbsolutePath() + " - " + e.getMessage());
