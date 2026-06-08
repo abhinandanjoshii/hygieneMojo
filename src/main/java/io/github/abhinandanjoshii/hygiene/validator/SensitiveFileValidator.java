@@ -66,11 +66,11 @@ public class SensitiveFileValidator {
 
     private static boolean checkGitignoreAwareness(File projectRoot,Log log){
         List<String> gitignoreEntries = readGitignore(projectRoot);
-        boolean anyFound = scanDirectory(projectRoot,log,gitignoreEntries);
+        boolean anyFound = scanDirectory(projectRoot, projectRoot,log,gitignoreEntries);
         return anyFound;
     }
 
-    private static boolean scanDirectory(File directory, Log log,List<String> gitignoreEntries){
+    private static boolean scanDirectory(File projectRoot, File directory, Log log,List<String> gitignoreEntries){
         File[] files = directory.listFiles();
         if(files == null) return false;
 
@@ -79,10 +79,14 @@ public class SensitiveFileValidator {
         for(File file : files){
             if(file.isDirectory()) {
                 if(SKIP_DIRS.contains(file.getName())) continue;
-                if(scanDirectory(file,log,gitignoreEntries)) anyFound = true;
+                if(scanDirectory(projectRoot, file,log,gitignoreEntries)) anyFound = true;
             }
             else {
-                if(isSensitive(file.getName()) && !isGitignored(file.getName(),gitignoreEntries)){
+                String relativePath = projectRoot.toPath()
+                        .relativize(file.toPath())
+                        .toString()
+                        .replace(File.separatorChar, '/');
+                if(isSensitive(file.getName()) && !isGitignored(file.getName(), relativePath, gitignoreEntries)){
                     log.warn("Sensitive file detected (not in .gitignore): "
                     + file.getAbsolutePath());
                     anyFound = true;
@@ -103,16 +107,22 @@ public class SensitiveFileValidator {
         return false;
     }
 
-    private static boolean isGitignored(String fileName, List<String> gitignoreEntries){
+    private static boolean isGitignored(String fileName, String relativePath, List<String> gitignoreEntries){
         for(String entry : gitignoreEntries) {
             String trimmed = entry.trim();
             if (trimmed.isEmpty() || trimmed.startsWith("#")) continue;
-            if (trimmed.equals(fileName)) return true;
-            if (trimmed.startsWith("*") && fileName.endsWith(trimmed.substring(1))) return true;
-            if (trimmed.endsWith("*") && fileName.startsWith(trimmed.substring(0, trimmed.length() - 1))) return true;
+            String normalized = trimmed.startsWith("./") ? trimmed.substring(2) : trimmed;
+            normalized = normalized.startsWith("/") ? normalized.substring(1) : normalized;
+            if (normalized.equals(fileName) || normalized.equals(relativePath)) return true;
+            if (normalized.startsWith("*")
+                    && (fileName.endsWith(normalized.substring(1))
+                    || relativePath.endsWith(normalized.substring(1)))) return true;
+            if (normalized.endsWith("*")
+                    && (fileName.startsWith(normalized.substring(0, normalized.length() - 1))
+                    || relativePath.startsWith(normalized.substring(0, normalized.length() - 1)))) return true;
             if (trimmed.contains("*")) {
-                String needle = trimmed.replace("*", "");
-                if (!needle.isEmpty() && fileName.contains(needle)) return true;
+                String needle = normalized.replace("*", "");
+                if (!needle.isEmpty() && (fileName.contains(needle) || relativePath.contains(needle))) return true;
             }
         }
         return false;
