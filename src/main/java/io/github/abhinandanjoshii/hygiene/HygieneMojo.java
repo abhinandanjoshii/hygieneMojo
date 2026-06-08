@@ -47,6 +47,10 @@ public class HygieneMojo extends AbstractMojo{
                         getLog(),
                         maxFileSizeMb
                 );
-        MergeConflictValidator.validate();
+        MergeConflictValidator.validate
+                (
+                        projectBase,
+                        getLog()
+                );
     }
 }
