@@ -1,163 +1,132 @@
 # HygieneMojo
 
-A lightweight open-source Maven plugin that performs project hygiene checks to help developers identify common issues early in the development lifecycle.
+Repository governance and build-time policy enforcement for Maven ecosystems.
 
-## Why HygieneMojo?
+HygieneMojo is a Maven plugin that codifies repository hygiene, release integrity, and security-adjacent validation rules directly into the build lifecycle. Rather than relying on code review, tribal knowledge, or post-facto CI failures, HygieneMojo surfaces structural and operational risks at the point of build execution.
 
-Many project issues are small but easy to overlook:
+The objective is simple:
 
-* Missing project documentation
-* Missing license files
-* SNAPSHOT dependencies in builds
-* Accidentally committed large files
+> Shift repository-level failures left, before they become release failures.
 
-HygieneMojo automates these checks and provides quick feedback during development.
+---
 
-## Features
+## Philosophy
 
-### README Validation
+Most engineering incidents are not caused by algorithmic defects.
 
-Checks for the existence of a README file.
+They originate from operational drift:
 
-Supported filenames:
+* unresolved merge artifacts
+* credential leakage
+* non-deterministic dependency graphs
+* repository misconfiguration
+* undocumented release assets
+* governance violations escaping review
 
-* README.md
-* README
-* readme.md
+Traditional static analysis validates code.
 
-### LICENSE Validation
+HygieneMojo validates the repository itself.
 
-Checks for the existence of a license file.
+---
 
-Supported filenames:
+## Core Capabilities
 
-* LICENSE
-* LICENSE.txt
-* LICENSE.md
+The current rule set focuses on repository integrity, supply-chain hygiene, and release-readiness validation.
 
-### SNAPSHOT Dependency Detection
+Validation categories include:
 
-Detects Maven dependencies that use SNAPSHOT versions.
+* Repository Governance
+* Dependency Hygiene
+* Source-Control Integrity
+* Credential Exposure Detection
+* Sensitive Asset Discovery
+* Repository Configuration Enforcement
 
-Example:
+All checks execute locally during Maven execution with no external services, remote APIs, telemetry, or runtime dependencies.
 
-```xml
-<dependency>
-    <groupId>com.example</groupId>
-    <artifactId>demo-library</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-</dependency>
-```
-
-SNAPSHOT dependencies are often intended for development and may lead to non-reproducible builds.
-
-### Large File Detection
-
-Scans the project directory and reports files that exceed a configurable size threshold.
-
-Ignored directories:
-
-* target
-* .git
-* .idea
-
-Default threshold:
-
-```text
-10 MB
-```
+---
 
 ## Installation
 
-Build and install the plugin locally:
+```xml
+<plugin>
+    <groupId>io.github.abhinandanjoshii</groupId>
+    <artifactId>hygiene-maven-plugin</artifactId>
+    <version>0.2.0</version>
+</plugin>
+```
+
+---
+
+## Execution
 
 ```bash
-mvn clean install
+mvn hygiene:check
 ```
 
-## Usage
-
-Run the plugin directly:
+Optional configuration:
 
 ```bash
-mvn io.github.abhinandanjoshii:hygiene-maven-plugin:0.1.0:check
+mvn hygiene:check -Dhygiene.maxFileSizeMb=50
 ```
 
-If using a development version:
+---
 
-```bash
-mvn io.github.abhinandanjoshii:hygiene-maven-plugin:0.1.0-SNAPSHOT:check
-```
+## Architectural Principles
 
-## Configuration
+### Policy-As-Code
 
-### Configure Maximum File Size
+Repository standards should be executable, not documented.
 
-Default:
+### Deterministic Execution
 
-```text
-10 MB
-```
+Validation must produce consistent outcomes independent of external infrastructure.
 
-Override the limit using a Maven property:
+### Pre-CI Enforcement
 
-```bash
-mvn io.github.abhinandanjoshii:hygiene-maven-plugin:0.1.0:check -Dhygiene.maxFileSizeMb=50
-```
+Issues should be detected before pull-request review, CI execution, or release publication.
 
-Example:
+### Extensible Rule Engine
 
-```bash
-mvn io.github.abhinandanjoshii:hygiene-maven-plugin:0.1.0:check -Dhygiene.maxFileSizeMb=100
-```
+Every validator is independently composable and intentionally isolated to allow incremental governance expansion without introducing coupling between rule domains.
 
-## Example Output
-
-```text
-[INFO] HygieneMojo running
-
-[INFO] README.md found.
-
-[WARNING] None of these files were found [LICENSE, LICENSE.txt, LICENSE.md]
-
-[WARNING] SNAPSHOT dependency detected:
-com.example:demo-library:1.0.0-SNAPSHOT
-
-[WARNING] Large file detected:
-/project/data/training.csv (120.00 MB)
-```
+---
 
 ## Roadmap
 
-### Completed
+Future releases will expand HygieneMojo beyond repository hygiene into broader build-governance and release-engineering concerns, including:
 
-* [x] README validation
-* [x] LICENSE validation
-* [x] SNAPSHOT dependency detection
-* [x] Large file detection
-* [x] Configurable file size threshold
+* configurable enforcement levels
+* build-failure policies
+* repository compliance profiles
+* conventional commit validation
+* release artifact governance
+* structured machine-readable reporting
+* organization-wide policy packs
+* custom rule definitions
 
-### Planned
-
-* [ ] Configurable severity levels
-* [ ] Build failure support
-* [ ] Additional hygiene rules
-* [ ] Maven Central publication
-* [ ] Plugin execution through simplified prefix resolution
-* [ ] Improved reporting and summary output
+---
 
 ## Contributing
 
-Contributions, bug reports, feature requests, and suggestions are welcome.
+The project is intentionally designed around isolated validation units.
 
-If you discover an issue or have an idea for a new hygiene rule, feel free to open an issue or submit a pull request.
+If you identify a governance gap, recurring repository failure pattern, or operational anti-pattern that should be enforceable at build time, open an Issue describing the use case.
 
-## Open Source
+Pull Requests are welcome.
 
-HygieneMojo is an open-source project maintained on GitHub.
+---
 
-The goal is to provide simple, practical, and extensible Maven project hygiene checks that help developers maintain cleaner and more reliable projects.
+## Maven Central
+
+Artifact:
+
+`io.github.abhinandanjoshii:hygiene-maven-plugin`
+
+https://central.sonatype.com/artifact/io.github.abhinandanjoshii/hygiene-maven-plugin
+
+---
 
 ## License
 
-MIT License
+MIT License.
