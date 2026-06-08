@@ -50,7 +50,7 @@ public class GitignoreValidator {
         File gitignore = new File(projectRoot, ".gitignore");
 
         if (!gitignore.exists()) {
-            log.warn(".gitignore not found — no files are being excluded from version control.");
+            log.warn(".gitignore not found : no files are being excluded from version control.");
             return;
         }
 
@@ -83,11 +83,9 @@ public class GitignoreValidator {
         List<String> missing = new ArrayList<>();
         for (String pattern : patterns) {
             boolean covered = entries.stream()
-                    .map(String::trim)
-                    .anyMatch(entry -> entry.equals(pattern) || entry.contains(pattern));
-            if (!covered) {
-                missing.add(pattern);
-            }
+                    .filter(entry -> !entry.isEmpty() && !entry.startsWith("#"))
+                    .anyMatch(entry -> entry.equals(pattern));
+            missing.add(pattern);
         }
         return missing;
     }

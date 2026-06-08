@@ -35,7 +35,7 @@ public class MergeConflictValidator {
     );
 
     private static final Set<String> SKIP_DIRS = Set.of(
-            ".target",".git", ".idea", "node_modules"
+            "target",".git", ".idea", "node_modules"
     );
 
 

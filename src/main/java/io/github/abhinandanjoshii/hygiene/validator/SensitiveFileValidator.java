@@ -3,7 +3,6 @@ package io.github.abhinandanjoshii.hygiene.validator;
 import org.apache.maven.plugin.logging.Log;
 
 import java.io.File;
-import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
@@ -26,7 +25,7 @@ public class SensitiveFileValidator {
     }
 
     private static final List<String> SENSITIVE_FILENAMES = List.of(
-            "env",
+            ".env",
             ".env.local",
             ".env.production",
             ".env.staging",
@@ -99,17 +98,21 @@ public class SensitiveFileValidator {
             if(fileName.equals(name)) return true;
         }
         for(String ext : SENSITIVE_EXTENSIONS){
-            if(fileName.startsWith(ext)) return true;
+            if(fileName.endsWith(ext)) return true;
         }
         return false;
     }
 
     private static boolean isGitignored(String fileName, List<String> gitignoreEntries){
-        for(String entry : gitignoreEntries){
+        for(String entry : gitignoreEntries) {
             String trimmed = entry.trim();
-            if(trimmed.isEmpty() || trimmed.startsWith("#")) continue;
-            if(trimmed.equals(fileName) || fileName.endsWith(trimmed.replace("*",""))) {
-                return true;
+            if (trimmed.isEmpty() || trimmed.startsWith("#")) continue;
+            if (trimmed.equals(fileName)) return true;
+            if (trimmed.startsWith("*") && fileName.endsWith(trimmed.substring(1))) return true;
+            if (trimmed.endsWith("*") && fileName.startsWith(trimmed.substring(0, trimmed.length() - 1))) return true;
+            if (trimmed.contains("*")) {
+                String needle = trimmed.replace("*", "");
+                if (!needle.isEmpty() && fileName.contains(needle)) return true;
             }
         }
         return false;

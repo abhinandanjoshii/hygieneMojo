@@ -1,6 +1,12 @@
 package io.github.abhinandanjoshii.hygiene;
 
-import io.github.abhinandanjoshii.hygiene.validator.*;
+import io.github.abhinandanjoshii.hygiene.validator.FileExistenceValidator;
+import io.github.abhinandanjoshii.hygiene.validator.GitignoreValidator;
+import io.github.abhinandanjoshii.hygiene.validator.HardcodedSecretValidator;
+import io.github.abhinandanjoshii.hygiene.validator.LargeFileValidator;
+import io.github.abhinandanjoshii.hygiene.validator.MergeConflictValidator;
+import io.github.abhinandanjoshii.hygiene.validator.SensitiveFileValidator;
+import io.github.abhinandanjoshii.hygiene.validator.SnapshotDependencyValidator;
 import org.apache.maven.plugin.AbstractMojo;
 import java.io.File;
 import java.util.List;

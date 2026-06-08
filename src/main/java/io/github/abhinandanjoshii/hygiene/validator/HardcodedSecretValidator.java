@@ -91,9 +91,9 @@ public class HardcodedSecretValidator {
                 String line = lines.get(i);
                 for(Pattern pattern : SECRET_PATTERNS){
                     if(pattern.matcher(line).find()){
-                        log.warn("Potential hardcoded sec"
+                        log.warn("Potential hardcoded secret detected: "
                         + file.getAbsolutePath()
-                        +" (line "+ (i+1) + ")");
+                        + " (line " + (i + 1) + ")");
                         anyFound = true;
                         break;
                     }
