@@ -9,7 +9,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/**
+ * Detects hardcoded secrets and credentials in project source and configuration files.
+ *
+ * <p>Uses regex patterns to identify common credential patterns including passwords,
+ * API keys, tokens, AWS access key prefixes, Bearer tokens, and private keys.</p>
+ *
+ * <p>Reports file path and line number without printing the secret value itself.</p>
+ */
 public class HardcodedSecretValidator {
+
+    private HardcodedSecretValidator() {
+        // utility class — no instantiation
+    }
 
     private static final List<Pattern> SECRET_PATTERNS = List.of(
             Pattern.compile("(?i)(password|passwd|pwd)\\s*[:=]\\s*['\"]?[^\\s'\"]{4,}"),
@@ -30,6 +42,12 @@ public class HardcodedSecretValidator {
             "target",".git",".idea","node_modules"
     );
 
+    /**
+     * Scans the project root directory for files containing hardcoded secrets.
+     *
+     * @param projectRoot the root directory of the Maven project
+     * @param log         the Maven plugin logger
+     */
     public static void validate(File projectRoot, Log log){
         boolean found = scanDirectory(projectRoot,log);
         if(!found){
@@ -37,6 +55,13 @@ public class HardcodedSecretValidator {
         }
     }
 
+    /**
+     * Recursively scans a directory for files containing hardcoded secret patterns.
+     *
+     * @param directory the directory to scan
+     * @param log       the Maven plugin logger
+     * @return {@code true} if any secrets were found, {@code false} otherwise
+     */
     public static boolean scanDirectory(File directory, Log log){
         File[] files = directory.listFiles();
         if(files == null) return false;

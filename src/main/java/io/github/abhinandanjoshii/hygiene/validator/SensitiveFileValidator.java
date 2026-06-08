@@ -9,7 +9,22 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Detects sensitive files present in the project directory that are not excluded by {@code .gitignore}.
+ *
+ * <p>Checks for files such as {@code .env}, {@code *.pem}, {@code *.key}, {@code *.p12},
+ * {@code *.jks}, {@code application-local.properties}, {@code secrets.yml},
+ * and {@code serviceaccount.json}.</p>
+ *
+ * <p>A file is only flagged if it exists AND is not already covered by an entry
+ * in the project's {@code .gitignore}.</p>
+ */
 public class SensitiveFileValidator {
+
+    private SensitiveFileValidator() {
+        // utility class — no instantiation
+    }
+
     private static final List<String> SENSITIVE_FILENAMES = List.of(
             "env",
             ".env.local",
@@ -37,6 +52,12 @@ public class SensitiveFileValidator {
             "target", ".git", ".idea", "node_modules"
     );
 
+    /**
+     * Scans the project root for sensitive files not excluded by {@code .gitignore}.
+     *
+     * @param projectRoot the root directory of the Maven project
+     * @param log         the Maven plugin logger
+     */
     public static void validate(File projectRoot, Log log){
         boolean found = checkGitignoreAwareness(projectRoot,log);
         if(!found){

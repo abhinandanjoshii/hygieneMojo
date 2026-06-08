@@ -7,7 +7,21 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Set;
 
+
+/**
+ * Validates that no unresolved Git merge conflict markers exist in project source files.
+ *
+ * <p>Scans {@code .java}, {@code .xml}, {@code .yml}, {@code .yaml}, {@code .properties},
+ * {@code .json}, {@code .md}, {@code .txt}, {@code .html}, and {@code .sql} files
+ * for {@code &lt;&lt;&lt;&lt;&lt;&lt;&lt;}, {@code =======}, and {@code &gt;&gt;&gt;&gt;&gt;&gt;&gt;} markers.</p>
+ *
+ * <p>Skips {@code target/}, {@code .git/}, {@code .idea/}, and {@code node_modules/} directories.</p>
+ */
 public class MergeConflictValidator {
+
+    private MergeConflictValidator() {
+        // utility class — no instantiation
+    }
 
     private static final List<String> CONFLICT_MARKERS = List.of(
             "<<<<<<<",
@@ -25,6 +39,12 @@ public class MergeConflictValidator {
     );
 
 
+    /**
+     * Scans the project root directory recursively for unresolved merge conflict markers.
+     *
+     * @param projectRoot the root directory of the Maven project
+     * @param log         the Maven plugin logger
+     */
     public static void validate(File projectRoot, Log log)
     {
         boolean found = scanDirectory(projectRoot,log);
