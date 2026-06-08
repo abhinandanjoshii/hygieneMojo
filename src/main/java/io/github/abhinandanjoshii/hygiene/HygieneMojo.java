@@ -1,9 +1,6 @@
 package io.github.abhinandanjoshii.hygiene;
 
-import io.github.abhinandanjoshii.hygiene.validator.FileExistenceValidator;
-import io.github.abhinandanjoshii.hygiene.validator.LargeFileValidator;
-import io.github.abhinandanjoshii.hygiene.validator.MergeConflictValidator;
-import io.github.abhinandanjoshii.hygiene.validator.SnapshotDependencyValidator;
+import io.github.abhinandanjoshii.hygiene.validator.*;
 import org.apache.maven.plugin.AbstractMojo;
 import java.io.File;
 import java.util.List;
@@ -52,5 +49,17 @@ public class HygieneMojo extends AbstractMojo{
                         projectBase,
                         getLog()
                 );
+        HardcodedSecretValidator.validate(
+                projectBase,
+                getLog()
+        );
+        SensitiveFileValidator.validate(
+                projectBase,
+                getLog()
+        );
+        GitignoreValidator.validate(
+                projectBase,
+                getLog()
+        );
     }
 }
