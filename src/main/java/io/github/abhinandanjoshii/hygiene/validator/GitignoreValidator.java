@@ -83,9 +83,12 @@ public class GitignoreValidator {
         List<String> missing = new ArrayList<>();
         for (String pattern : patterns) {
             boolean covered = entries.stream()
+                    .map(String::trim)
                     .filter(entry -> !entry.isEmpty() && !entry.startsWith("#"))
                     .anyMatch(entry -> entry.equals(pattern));
-            missing.add(pattern);
+            if (!covered) {
+                missing.add(pattern);
+            }
         }
         return missing;
     }
