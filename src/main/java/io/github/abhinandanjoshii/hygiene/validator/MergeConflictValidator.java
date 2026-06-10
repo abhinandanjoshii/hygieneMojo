@@ -84,7 +84,7 @@ public final class MergeConflictValidator implements HygieneValidator {
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             for (String marker : CONFLICT_MARKERS) {
-                if (line.startsWith(marker)) {
+                if (line.stripLeading().startsWith(marker)) {
                     findings.add(Finding.of(
                             Severity.ERROR,
                             getClass().getSimpleName(),

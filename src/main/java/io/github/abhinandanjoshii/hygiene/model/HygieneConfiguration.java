@@ -138,7 +138,7 @@ public final class HygieneConfiguration {
     }
 
     // -------------------------------------------------------------------------
-    // Setters — package-private, used only by HygieneMojo.buildConfiguration()
+    // Setters — public, used only by HygieneMojo.buildConfiguration()
     // -------------------------------------------------------------------------
 
     public void setAdditionalScannedExtensions(List<String> v) {
