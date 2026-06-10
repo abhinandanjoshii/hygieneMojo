@@ -29,6 +29,11 @@ import java.util.List;
  */
 public final class LargeFileValidator implements HygieneValidator {
 
+    /**
+     * Default constructor. Instantiated by HygieneMojo at runtime.
+     */
+    public LargeFileValidator() {}
+
     private static final long BYTES_PER_MB = 1024L * 1024L;
 
     /**

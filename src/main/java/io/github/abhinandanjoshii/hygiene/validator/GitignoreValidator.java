@@ -31,6 +31,11 @@ import java.util.Set;
  */
 public final class GitignoreValidator implements HygieneValidator {
 
+    /**
+     * Default constructor. Instantiated by HygieneMojo at runtime.
+     */
+    public GitignoreValidator() {}
+
     private record PatternGroup(String label, List<String> alternatives, Severity severity) {}
 
     private static final List<PatternGroup> DEFAULT_PATTERN_GROUPS = List.of(

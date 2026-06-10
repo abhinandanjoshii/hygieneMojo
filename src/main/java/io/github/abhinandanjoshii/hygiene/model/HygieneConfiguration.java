@@ -53,6 +53,12 @@ import java.util.Set;
  */
 public final class HygieneConfiguration {
 
+    /**
+     * Default constructor. All fields initialised to empty lists.
+     * Populated via setters by {@link io.github.abhinandanjoshii.hygiene.HygieneMojo}.
+     */
+    public HygieneConfiguration() {}
+
     private List<String> additionalScannedExtensions        = new ArrayList<>();
     private List<String> additionalSensitiveFilenames       = new ArrayList<>();
     private List<String> additionalSensitiveExtensions      = new ArrayList<>();
@@ -141,30 +147,73 @@ public final class HygieneConfiguration {
     // Setters — public, used only by HygieneMojo.buildConfiguration()
     // -------------------------------------------------------------------------
 
+    /**
+     * Sets additional file extensions scanned by validators.
+     *
+     * <p>Configured from the plugin's {@code pom.xml} configuration and merged
+     * with built-in defaults.</p>
+     *
+     * @param v extensions to add, or {@code null} for none
+     */
     public void setAdditionalScannedExtensions(List<String> v) {
         this.additionalScannedExtensions = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
+    /**
+     * Sets additional sensitive filenames.
+     *
+     * @param v filenames to add, or {@code null} for none
+     */
     public void setAdditionalSensitiveFilenames(List<String> v) {
         this.additionalSensitiveFilenames = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
+    /**
+     * Sets additional sensitive file extensions.
+     *
+     * @param v extensions to add, or {@code null} for none
+     */
     public void setAdditionalSensitiveExtensions(List<String> v) {
         this.additionalSensitiveExtensions = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
+    /**
+     * Sets README candidate filenames.
+     *
+     * <p>When non-empty, replaces the built-in defaults.</p>
+     *
+     * @param v README candidate filenames
+     */
     public void setReadmeCandidates(List<String> v) {
         this.readmeCandidates = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
+    /**
+     * Sets LICENSE candidate filenames.
+     *
+     * <p>When non-empty, replaces the built-in defaults.</p>
+     *
+     * @param v LICENSE candidate filenames
+     */
     public void setLicenseCandidates(List<String> v) {
         this.licenseCandidates = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
+
+    /**
+     * Sets additional directory names to skip during scans.
+     *
+     * @param v directory names to add
+     */
     public void setAdditionalSkipDirectories(List<String> v) {
         this.additionalSkipDirectories = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
+    /**
+     * Sets additional required {@code .gitignore} patterns.
+     *
+     * @param v patterns to add
+     */
     public void setAdditionalRequiredGitignorePatterns(List<String> v) {
         this.additionalRequiredGitignorePatterns = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }

@@ -36,6 +36,11 @@ import java.util.Set;
  */
 public final class SensitiveFileValidator implements HygieneValidator {
 
+    /**
+     * Default constructor. Instantiated by HygieneMojo at runtime.
+     */
+    public SensitiveFileValidator() {}
+
     private static final Set<String> DEFAULT_SENSITIVE_FILENAMES = Set.of(
             ".env", ".env.local", ".env.production", ".env.staging", ".env.development",
             "application-local.properties", "application-local.yml", "application-local.yaml",

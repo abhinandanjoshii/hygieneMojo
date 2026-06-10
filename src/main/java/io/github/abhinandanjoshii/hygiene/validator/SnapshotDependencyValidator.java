@@ -23,6 +23,11 @@ import java.util.List;
  */
 public final class SnapshotDependencyValidator implements HygieneValidator {
 
+    /**
+     * Default constructor. Instantiated by HygieneMojo at runtime.
+     */
+    public SnapshotDependencyValidator() {}
+
     private static final String SNAPSHOT_SUFFIX = "-SNAPSHOT";
 
     /**

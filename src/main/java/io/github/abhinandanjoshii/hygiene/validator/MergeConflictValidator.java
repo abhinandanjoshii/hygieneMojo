@@ -32,6 +32,11 @@ import java.util.Set;
  */
 public final class MergeConflictValidator implements HygieneValidator {
 
+    /**
+     * Default constructor. Instantiated by HygieneMojo at runtime.
+     */
+    public MergeConflictValidator() {}
+
     private static final List<String> CONFLICT_MARKERS = List.of(
             "<<<<<<<",
             "=======",

@@ -34,6 +34,11 @@ import java.util.List;
  */
 public final class FileExistenceValidator implements HygieneValidator {
 
+    /**
+     * Default constructor. Instantiated by HygieneMojo at runtime.
+     */
+    public FileExistenceValidator() {}
+
     private static final List<String> DEFAULT_README_CANDIDATES =
             List.of("README.md", "README", "readme.md", "README.rst", "README.txt");
 

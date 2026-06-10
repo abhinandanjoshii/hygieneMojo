@@ -34,6 +34,11 @@ import java.util.regex.Pattern;
  */
 public final class HardcodedSecretValidator implements HygieneValidator {
 
+    /**
+     * Default constructor. Instantiated by HygieneMojo at runtime.
+     */
+    public HardcodedSecretValidator() {}
+
     private static final List<Pattern> SECRET_PATTERNS = List.of(
             Pattern.compile("(?i)(password|passwd|pwd)\\s*[:=]\\s*['\"]?[^\\s'\"${}]{6,}"),
             Pattern.compile("(?i)(api_key|apikey|api-key)\\s*[:=]\\s*['\"]?[^\\s'\"${}]{8,}"),
