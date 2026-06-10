@@ -5,12 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.abhinandanjoshii</groupId>
     <artifactId>hygiene-maven-plugin</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
     <packaging>maven-plugin</packaging>
     <name>HygieneMojo</name>
     <description>
-        A Maven plugin for performing project hygiene checks such as README validation,
-        LICENSE validation, SNAPSHOT dependency detection, and large file detection.
+        Policy-driven repository governance and build-time compliance validation for Maven ecosystems.
     </description>
     <url>https://github.com/abhinandanjoshii/hygieneMojo</url>
     <licenses>

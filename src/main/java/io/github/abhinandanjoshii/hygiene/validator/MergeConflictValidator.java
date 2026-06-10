@@ -1,27 +1,41 @@
 package io.github.abhinandanjoshii.hygiene.validator;
 
-import org.apache.maven.plugin.logging.Log;
+import io.github.abhinandanjoshii.hygiene.model.Finding;
+import io.github.abhinandanjoshii.hygiene.model.HygieneConfiguration;
+import io.github.abhinandanjoshii.hygiene.model.Severity;
+import io.github.abhinandanjoshii.hygiene.model.ValidationContext;
+
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-
 /**
- * Validates that no unresolved Git merge conflict markers exist in project source files.
+ * Detects unresolved Git merge conflict markers in project source files.
  *
- * <p>Scans {@code .java}, {@code .xml}, {@code .yml}, {@code .yaml}, {@code .properties},
- * {@code .json}, {@code .md}, {@code .txt}, {@code .html}, and {@code .sql} files
- * for {@code &lt;&lt;&lt;&lt;&lt;&lt;&lt;}, {@code =======}, and {@code &gt;&gt;&gt;&gt;&gt;&gt;&gt;} markers.</p>
+ * <p>Scans source, config, and resource files for {@code <<<<<<<}, {@code =======},
+ * and {@code >>>>>>>} markers. Developers accidentally commit these after a merge
+ * and they cause compilation failures or silent data corruption depending on the
+ * file type.</p>
  *
- * <p>Skips {@code target/}, {@code .git/}, {@code .idea/}, and {@code node_modules/} directories.</p>
+ * <h2>Configuration</h2>
+ * <pre>{@code
+ * <configuration>
+ *   <additionalScannedExtensions>
+ *     <extension>.tf</extension>
+ *     <extension>.sh</extension>
+ *   </additionalScannedExtensions>
+ * </configuration>
+ * }</pre>
+ *
+ * @since 0.3.0
  */
-public class MergeConflictValidator {
+public final class MergeConflictValidator implements HygieneValidator {
 
-    private MergeConflictValidator() {
-        // utility class — no instantiation
-    }
+    /**
+     * Default constructor. Instantiated by HygieneMojo at runtime.
+     */
+    public MergeConflictValidator() {}
 
     private static final List<String> CONFLICT_MARKERS = List.of(
             "<<<<<<<",
@@ -29,78 +43,63 @@ public class MergeConflictValidator {
             ">>>>>>>"
     );
 
-    private static final Set<String> SCANNED_EXTENSIONS = Set.of(
-            ".java",".xml",".yml",".yaml",".properties",
-            ".json", ".md", ".txt", ".html", ".sql"
+    /** Built-in extensions. User additions merged at runtime from configuration. */
+    private static final Set<String> DEFAULT_SCANNED_EXTENSIONS = Set.of(
+            ".java", ".xml", ".yml", ".yaml", ".properties",
+            ".json", ".md", ".txt", ".html", ".sql", ".groovy", ".kt"
     );
-
-    private static final Set<String> SKIP_DIRS = Set.of(
-            "target",".git", ".idea", "node_modules"
-    );
-
 
     /**
-     * Scans the project root directory recursively for unresolved merge conflict markers.
+     * Scans the project root recursively for unresolved merge conflict markers.
      *
-     * @param projectRoot the root directory of the Maven project
-     * @param log         the Maven plugin logger
+     * @param context read-only project context
+     * @return one ERROR finding per conflict marker line; empty if none found
      */
-    public static void validate(File projectRoot, Log log)
-    {
-        boolean found = scanDirectory(projectRoot,log);
-        if (!found) {
-            log.info("No merge conflict markers found.");
+    @Override
+    public List<Finding> validate(ValidationContext context) {
+        Set<String> extensions = HygieneConfiguration.merge(
+                DEFAULT_SCANNED_EXTENSIONS,
+                context.getConfiguration().getAdditionalScannedExtensions()
+        );
+
+        List<Finding> findings = new ArrayList<>();
+        scanDirectory(context.getProjectRoot(), extensions, findings, context);
+        return List.copyOf(findings);
+    }
+
+    private void scanDirectory(File directory, Set<String> extensions,
+                               List<Finding> findings, ValidationContext context) {
+        File[] entries = directory.listFiles();
+        if (entries == null) return;
+
+        for (File entry : entries) {
+            if (entry.isDirectory()) {
+                if (!ValidatorFileUtils.shouldSkipDirectory(entry, context)) {
+                    scanDirectory(entry, extensions, findings, context);
+                }
+            } else if (ValidatorFileUtils.hasExtension(entry.getName(), extensions)) {
+                scanFile(entry, findings);
+            }
         }
     }
 
-    private static boolean scanDirectory(File directory,Log log){
-        File[] files = directory.listFiles();
-        if (files == null) return false;
+    private void scanFile(File file, List<Finding> findings) {
+        List<String> lines = ValidatorFileUtils.readLinesSilently(file);
 
-        boolean anyFound = false;
-
-        for(File file : files){
-            if(file.isDirectory()){
-                if(SKIP_DIRS.contains(file.getName())) continue;
-                if(scanDirectory(file,log)) anyFound = true;
-            }
-            else{
-            if(!hasScannedExtensions(file.getName())) continue;
-            if(scanFile(file,log)) anyFound = true;
-            }
-        }
-        return anyFound;
-    }
-
-    private static boolean scanFile(File file, Log log){
-        try{
-            List<String> lines = Files.readAllLines(file.toPath());
-            boolean anyFound = false;
-
-            for(int i = 0; i < lines.size() ; i++){
-                String line = lines.get(i);
-                for(String marker : CONFLICT_MARKERS){
-                    if(line.startsWith(marker)){
-                        log.warn("Merge conflict marker detected: "
-                        + file.getAbsolutePath()
-                        + " (line " + (i+1) + "): "
-                        + line.trim());
-                        anyFound = true;
-                        break;
-                    }
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            for (String marker : CONFLICT_MARKERS) {
+                if (line.stripLeading().startsWith(marker)) {
+                    findings.add(Finding.of(
+                            Severity.ERROR,
+                            getClass().getSimpleName(),
+                            "Unresolved merge conflict marker at "
+                                    + file.getAbsolutePath() + ":" + (i + 1)
+                                    + " — '" + line.trim() + "'"
+                    ));
+                    break;
                 }
             }
-            return anyFound;
-        } catch (IOException e) {
-            log.debug("Could not read file: " + file.getAbsolutePath() + " - " + e.getMessage());
-            return false;
         }
-    }
-
-    private static boolean hasScannedExtensions(String fileName){
-        for(String ext : SCANNED_EXTENSIONS){
-            if(fileName.endsWith(ext)) return true;
-        }
-        return false;
     }
 }
