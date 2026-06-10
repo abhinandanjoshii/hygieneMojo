@@ -1,80 +1,74 @@
 package io.github.abhinandanjoshii.hygiene.validator;
 
-import org.apache.maven.plugin.logging.Log;
+import io.github.abhinandanjoshii.hygiene.model.Finding;
+import io.github.abhinandanjoshii.hygiene.model.Severity;
+import io.github.abhinandanjoshii.hygiene.model.ValidationContext;
+
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Detects files in the project directory that exceed a configured size threshold.
+ * Detects files committed to the repository that exceed a configurable size threshold.
  *
- * <p>Large files committed to version control bloat repository size and slow down
- * {@code git clone} and CI pipeline times. Skips the {@code target/}, {@code .git/}, and {@code .idea/} directories.</p>
+ * <p>Large files bloat repository size and slow down {@code git clone} and CI pipeline
+ * times. Consider using Git LFS for binary assets or removing large generated files
+ * from version control entirely.</p>
+ *
+ * <h3>Configuration</h3>
+ * <pre>{@code
+ * <configuration>
+ *   <maxFileSizeMb>50</maxFileSizeMb>
+ *   <additionalSkipDirectories>
+ *     <directory>large-assets</directory>
+ *   </additionalSkipDirectories>
+ * </configuration>
+ * }</pre>
+ *
+ * @since 0.3.0
  */
-public class LargeFileValidator {
+public final class LargeFileValidator implements HygieneValidator {
 
-    private LargeFileValidator() {
-        // utility class — no instantiation
-    }
+    private static final long BYTES_PER_MB = 1024L * 1024L;
 
     /**
-     * Scans the project root directory for files exceeding the configured size limit.
+     * Scans the project root recursively for files exceeding the configured size threshold.
      *
-     * @param projectRoot   the root directory of the Maven project
-     * @param log           the Maven plugin logger
-     * @param maxFileSizeMb the maximum allowed file size in megabytes
+     * @param context read-only project context
+     * @return one WARNING finding per oversized file; empty if none found
      */
-    public static void validate(File projectRoot, Log log , int maxFileSizeMb){
-        long maxFileSizeBytes = maxFileSizeMb * 1024L * 1024L;
-        scanDirectory(
-                projectRoot,
-                log,
-                maxFileSizeBytes
-        );
+    @Override
+    public List<Finding> validate(ValidationContext context) {
+        long thresholdBytes = (long) context.getMaxFileSizeMb() * BYTES_PER_MB;
+        List<Finding> findings = new ArrayList<>();
+        scanDirectory(context.getProjectRoot(), thresholdBytes, findings, context);
+        return List.copyOf(findings);
     }
 
-    private static void scanDirectory(File directory,Log log, long maxFileSizeBytes){
+    private void scanDirectory(File directory, long thresholdBytes,
+                               List<Finding> findings, ValidationContext context) {
+        File[] entries = directory.listFiles();
+        if (entries == null) return;
 
-        File[] files = directory.listFiles();
-
-        if(files == null) return;
-
-        for(File file : files){
-
-            if(file.isDirectory()){
-
-                if (file.getName().equals("target")
-                        || file.getName().equals(".git")
-                        || file.getName().equals(".idea")) {
-                    continue;
+        for (File entry : entries) {
+            if (entry.isDirectory()) {
+                if (!ValidatorFileUtils.shouldSkipDirectory(entry, context)) {
+                    scanDirectory(entry, thresholdBytes, findings, context);
                 }
-
-                scanDirectory(
-                        file,
-                        log,
-                        maxFileSizeBytes
-                );
-
-            }
-            else {
-
-                long fileSize = file.length();
-
-                if (fileSize > maxFileSizeBytes) {
-
-                    double sizeInMb =
-                            (double) fileSize / (1024 * 1024);
-
-                    log.warn(
-                            "Large file detected: "
-                                    + file.getAbsolutePath()
-                                    + " ("
-                                    + String.format("%.2f", sizeInMb)
-                                    + " MB)"
-                    );
+            } else {
+                long size = entry.length();
+                if (size > thresholdBytes) {
+                    findings.add(Finding.of(
+                            Severity.WARNING,
+                            getClass().getSimpleName(),
+                            String.format(
+                                    "Large file detected: %s (%.2f MB) — consider using Git LFS or removing from version control.",
+                                    entry.getAbsolutePath(),
+                                    (double) size / BYTES_PER_MB
+                            )
+                    ));
                 }
-
             }
         }
-
     }
-
 }
