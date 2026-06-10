@@ -169,6 +169,11 @@ public class HygieneMojo extends AbstractMojo {
             try {
                 all.addAll(validator.validate(context));
             } catch (Exception e) {
+                all.add(Finding.of(
+                        Severity.ERROR,
+                        validator.getClass().getSimpleName(),
+                        "Validator threw an unexpected exception and could not complete: " + e.getMessage()
+                ));
                 getLog().error("Validator '" + validator.getClass().getSimpleName()
                         + "' threw an unexpected exception: " + e.getMessage(), e);
             }
