@@ -52,7 +52,7 @@ All checks execute locally during Maven execution with no external services, rem
 <plugin>
     <groupId>io.github.abhinandanjoshii</groupId>
     <artifactId>hygiene-maven-plugin</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </plugin>
 ```
 
@@ -67,7 +67,7 @@ mvn hygiene:check
 Optional configuration:
 
 ```bash
-mvn hygiene:check -Dhygiene.maxFileSizeMb=50
+mvn hygiene:check 
 ```
 
 ---
