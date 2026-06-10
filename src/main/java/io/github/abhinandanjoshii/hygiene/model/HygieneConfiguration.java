@@ -141,31 +141,31 @@ public final class HygieneConfiguration {
     // Setters — package-private, used only by HygieneMojo.buildConfiguration()
     // -------------------------------------------------------------------------
 
-    void setAdditionalScannedExtensions(List<String> v) {
+    public void setAdditionalScannedExtensions(List<String> v) {
         this.additionalScannedExtensions = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
-    void setAdditionalSensitiveFilenames(List<String> v) {
+    public void setAdditionalSensitiveFilenames(List<String> v) {
         this.additionalSensitiveFilenames = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
-    void setAdditionalSensitiveExtensions(List<String> v) {
+    public void setAdditionalSensitiveExtensions(List<String> v) {
         this.additionalSensitiveExtensions = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
-    void setReadmeCandidates(List<String> v) {
+    public void setReadmeCandidates(List<String> v) {
         this.readmeCandidates = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
-    void setLicenseCandidates(List<String> v) {
+    public void setLicenseCandidates(List<String> v) {
         this.licenseCandidates = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
-    void setAdditionalSkipDirectories(List<String> v) {
+    public void setAdditionalSkipDirectories(List<String> v) {
         this.additionalSkipDirectories = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
-    void setAdditionalRequiredGitignorePatterns(List<String> v) {
+    public void setAdditionalRequiredGitignorePatterns(List<String> v) {
         this.additionalRequiredGitignorePatterns = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 

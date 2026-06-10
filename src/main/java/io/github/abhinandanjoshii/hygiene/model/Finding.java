@@ -28,7 +28,7 @@ public record Finding(Severity severity, String validatorName , String message) 
     public Finding{
         Objects.requireNonNull(severity,"severity must not be null");
         Objects.requireNonNull(validatorName,"validatorName must not be null");
-        Objects.requireNonNull(severity,"message must not be null");
+        Objects.requireNonNull(message,"message must not be null");
         if (validatorName.isBlank()) throw new IllegalArgumentException("validatorName must not be blank");
         if (message.isBlank())  throw new IllegalArgumentException("message must not be blank");
     }

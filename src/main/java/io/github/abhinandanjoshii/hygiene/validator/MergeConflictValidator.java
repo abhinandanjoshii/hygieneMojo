@@ -18,7 +18,7 @@ import java.util.Set;
  * and they cause compilation failures or silent data corruption depending on the
  * file type.</p>
  *
- * <h3>Configuration</h3>
+ * <h2>Configuration</h2>
  * <pre>{@code
  * <configuration>
  *   <additionalScannedExtensions>

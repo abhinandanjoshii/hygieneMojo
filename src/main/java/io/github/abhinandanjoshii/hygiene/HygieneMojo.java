@@ -28,12 +28,12 @@ import java.util.List;
  * aggregates {@link Finding} instances, prints a structured report, and
  * enforces the configured build-failure policy.</p>
  *
- * <h3>Minimal usage</h3>
+ * <h2>Minimal usage</h2>
  * <pre>
  *   mvn hygiene:check
  * </pre>
  *
- * <h3>Full pom.xml configuration reference</h3>
+ * <h2>Full pom.xml configuration reference</h2>
  * <pre>{@code
  * <plugin>
  *   <groupId>io.github.abhinandanjoshii</groupId>

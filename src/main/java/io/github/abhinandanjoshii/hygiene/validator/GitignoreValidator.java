@@ -17,7 +17,7 @@ import java.util.Set;
  * logs, and environment files. Recommended patterns cover credential files and local
  * config overrides.</p>
  *
- * <h3>Configuration</h3>
+ * <h2>Configuration</h2>
  * <pre>{@code
  * <configuration>
  *   <additionalRequiredGitignorePatterns>

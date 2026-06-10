@@ -7,7 +7,7 @@ package io.github.abhinandanjoshii.hygiene.model;
  * to fail the build; {@link #WARNING} findings can optimally fail the build when
  * {@code failOnWarning} is enabled.</p>
  *
- * @since 0.3.0 TODO: new versiion name has to be configured later
+ * @since 0.3.0
  */
 public enum Severity {
 

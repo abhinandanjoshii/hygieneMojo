@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  *
  * <p>Reports file path and line number only — never prints the secret value itself.</p>
  *
- * <h3>Configuration</h3>
+ * <h2>Configuration</h2>
  * <pre>{@code
  * <configuration>
  *   <additionalScannedExtensions>

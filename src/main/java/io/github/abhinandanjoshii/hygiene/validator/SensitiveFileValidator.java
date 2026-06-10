@@ -18,7 +18,7 @@ import java.util.Set;
  * in the project's {@code .gitignore} — avoiding noise for projects that
  * legitimately have these files but correctly ignore them.</p>
  *
- * <h3>Configuration</h3>
+ * <h2>Configuration</h2>
  * <pre>{@code
  * <configuration>
  *   <additionalSensitiveFilenames>

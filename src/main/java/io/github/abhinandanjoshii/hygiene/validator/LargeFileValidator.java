@@ -15,7 +15,7 @@ import java.util.List;
  * times. Consider using Git LFS for binary assets or removing large generated files
  * from version control entirely.</p>
  *
- * <h3>Configuration</h3>
+ * <h2>Configuration</h2>
  * <pre>{@code
  * <configuration>
  *   <maxFileSizeMb>50</maxFileSizeMb>
