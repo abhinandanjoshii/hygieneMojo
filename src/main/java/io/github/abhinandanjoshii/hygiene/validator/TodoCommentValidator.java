@@ -1,13 +1,73 @@
 package io.github.abhinandanjoshii.hygiene.validator;
 
 import io.github.abhinandanjoshii.hygiene.model.Finding;
+import io.github.abhinandanjoshii.hygiene.model.Severity;
 import io.github.abhinandanjoshii.hygiene.model.ValidationContext;
 
+import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class TodoCommentValidator implements HygieneValidator{
+
+    private static final Set<String> SCANNED_EXTENSIONS = Set.of(
+            ".java", ".xml", ".yml", ".yaml", ".properties",
+            ".json", ".md", ".sql", ".groovy", ".kt"
+    );
+
+    private static final List<String> TODO_MARKERS = List.of(
+            "TODO", "FIXME", "HACK", "XXX", "NOSONAR" , "BUG"
+    );
+
     @Override
     public List<Finding> validate(ValidationContext context) {
-        return List.of();
+        int threshold = context.getConfiguration().getTodoThreshold();
+
+        Map<String, Integer> packageCounts = new LinkedHashMap<>();
+        int[] totalCount = {0};
+
+        scanDirectory(context.getProjectRoot(), context.getProjectRoot(), packageCounts, totalCount, context);
+
+        int total = totalCount[0];
+
+        if(total == 0) return List.of();
+
+        String summary = buildSummary(total, packageCounts, threshold);
+
+        Severity severity = total > threshold ? Severity.WARNING : Severity.INFO;
+
+        return List.of(Finding.of(severity, getClass().getSimpleName(), summary));
+    }
+
+    private void scanDirectory(File projectRoot, File directory, Map<String, Integer> packageCounts, int[] totalCount, ValidationContext context){
+        File[] entries = directory.listFiles();
+        if(entries == null) return;
+
+        for( File entry : entries){
+            if(entry.isDirectory()){
+                if(ValidatorFileUtils.shouldSkipDirectory(entry, context)) continue;
+                if(isTestSourceDirectory(projectRoot, entry)) continue;
+                scanDirectory(projectRoot, entry, packageCounts, totalCount, context);
+            } else if(ValidatorFileUtils.hasExtension(entry.getName(), SCANNED_EXTENSIONS)){
+                scanFile(projectRoot, entry, packageCounts,totalCount);
+            }
+        }
+    }
+
+    private void scanFile(File projectRoot, File file, Map<String, Integer> packageCounts, int[] totalCount){
+        List<String> lines = ValidatorFileUtils.readLinesSilently(file);
+
+        String relativePath = projectRoot.toPath()
+                .toString()
+            .replace(File.separatorChar, '/');
+        String packageKey = derivePackageKey(relativePath);
+
+        ---
+    }
+
+    private String derivePackageKey(String relativePath) {
+        return "TOMMMM : )";
     }
 }
