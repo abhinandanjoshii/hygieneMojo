@@ -5,6 +5,7 @@ import io.github.abhinandanjoshii.hygiene.model.HygieneConfiguration;
 import io.github.abhinandanjoshii.hygiene.model.Severity;
 import io.github.abhinandanjoshii.hygiene.model.ValidationContext;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +97,7 @@ public final class SensitiveFileValidator implements HygieneValidator {
                         .replace(File.separatorChar, '/');
 
                 if (!isGitignored(entry.getName(), relativePath, gitignoreLines)) {
+                    BufferedInputStream
                     findings.add(Finding.of(
                             Severity.ERROR,
                             getClass().getSimpleName(),
