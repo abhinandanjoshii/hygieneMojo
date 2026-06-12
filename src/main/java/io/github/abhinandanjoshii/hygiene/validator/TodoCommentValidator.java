@@ -64,10 +64,51 @@ public class TodoCommentValidator implements HygieneValidator{
             .replace(File.separatorChar, '/');
         String packageKey = derivePackageKey(relativePath);
 
-        ---
+        for(String line : lines) {
+            String upper = line.toUpperCase();
+            for(String marker : TODO_MARKERS){
+                if(upper.contains(marker)){
+                    totalCount[0]++;
+                    packageCounts.merge(packageKey, 1, Integer::sum);
+                    break;
+                }
+            }
+        }
     }
 
     private String derivePackageKey(String relativePath) {
-        return "TOMMMM : )";
+        int lastSlash =  relativePath.lastIndexOf('/');
+        if (lastSlash <= 0) return "(root)";
+        String parentPath = relativePath.substring(0, lastSlash);
+        String stripped = parentPath
+                .replaceFirst("^src/main/java/", "")
+                .replaceFirst("^src/main/resources/", "")
+                .replaceFirst("^src/main/", "");
+        return stripped.isEmpty() ? "(root)" : stripped;
+    }
+
+    private static String buildSummary(int total, Map<String, Integer> packageCounts, int threshold){
+        StringBuilder sb = new StringBuilder();
+        sb.append(total).append(" TODO/FIXME/HACK comments found");
+        if (total > threshold) {
+            sb.append(" (threshold: ").append(threshold).append(" â€” consider tracking these as issues)");
+        }
+        sb.append(".");
+
+        packageCounts.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .limit(5)
+                .forEach(e -> sb.append("\n    ").append(e.getKey())
+                        .append(": ").append(e.getValue()));
+
+        return sb.toString();
+    }
+
+    private static boolean isTestSourceDirectory(File projectRoot, File directory) {
+        String relative = projectRoot.toPath()
+                .relativize(directory.toPath())
+                .toString()
+                .replace(File.separatorChar, '/');
+        return relative.startsWith("src/test");
     }
 }
