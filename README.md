@@ -123,7 +123,7 @@ Artifact:
 
 `io.github.abhinandanjoshii:hygiene-maven-plugin`
 
-https://central.sonatype.com/artifact/io.github.abhinandanjoshii/hygiene-maven-plugin
+https://mvnrepository.com/artifact/io.github.abhinandanjoshii/hygiene-maven-plugin
 
 ---
 
