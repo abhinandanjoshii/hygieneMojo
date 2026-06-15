@@ -66,6 +66,7 @@ public final class HygieneConfiguration {
     private List<String> licenseCandidates                  = new ArrayList<>();
     private List<String> additionalSkipDirectories          = new ArrayList<>();
     private List<String> additionalRequiredGitignorePatterns = new ArrayList<>();
+    private int todoThreshold = 20;
 
     // -------------------------------------------------------------------------
     // Accessors — unmodifiable views for validators
@@ -143,6 +144,17 @@ public final class HygieneConfiguration {
         return Collections.unmodifiableList(additionalRequiredGitignorePatterns);
     }
 
+    /**
+     * Maximum number of TODO/FIXME/HACK/XXX/NOSONAR comments allowed before
+     * {@link io.github.abhinandanjoshii.hygiene.validator.TodoCommentValidator}
+     * escalates its finding from {@code INFO} to {@code WARNING}.
+     *
+     * <p>Default: {@code 20}. Set to {@code 0} to warn on any occurrence.</p>
+     */
+    public int getTodoThreshold() {
+        return todoThreshold;
+    }
+
     // -------------------------------------------------------------------------
     // Setters — public, used only by HygieneMojo.buildConfiguration()
     // -------------------------------------------------------------------------
@@ -216,6 +228,10 @@ public final class HygieneConfiguration {
      */
     public void setAdditionalRequiredGitignorePatterns(List<String> v) {
         this.additionalRequiredGitignorePatterns = v != null ? new ArrayList<>(v) : new ArrayList<>();
+    }
+
+    public void setTodoThreshold(int v) {
+        this.todoThreshold = v;
     }
 
     // -------------------------------------------------------------------------
