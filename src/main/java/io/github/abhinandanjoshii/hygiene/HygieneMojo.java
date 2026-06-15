@@ -36,7 +36,7 @@ import java.util.List;
  * {@link Finding} results, prints a structured report, writes
  * {@code target/hygiene-report.json}, and enforces the build-failure policy.</p>
  *
- * <h3>Full pom.xml configuration reference</h3>
+ * <h2>Full pom.xml configuration reference</h2>
  * <pre>{@code
  * <plugin>
  *   <groupId>io.github.abhinandanjoshii</groupId>
