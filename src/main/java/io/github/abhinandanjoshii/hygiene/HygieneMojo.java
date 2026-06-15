@@ -4,48 +4,54 @@ import io.github.abhinandanjoshii.hygiene.model.Finding;
 import io.github.abhinandanjoshii.hygiene.model.HygieneConfiguration;
 import io.github.abhinandanjoshii.hygiene.model.Severity;
 import io.github.abhinandanjoshii.hygiene.model.ValidationContext;
+import io.github.abhinandanjoshii.hygiene.report.HygieneReport;
+import io.github.abhinandanjoshii.hygiene.report.HygieneReportWriter;
+import io.github.abhinandanjoshii.hygiene.validator.DependencyVersionPinningValidator;
 import io.github.abhinandanjoshii.hygiene.validator.FileExistenceValidator;
 import io.github.abhinandanjoshii.hygiene.validator.GitignoreValidator;
 import io.github.abhinandanjoshii.hygiene.validator.HardcodedSecretValidator;
 import io.github.abhinandanjoshii.hygiene.validator.HygieneValidator;
+import io.github.abhinandanjoshii.hygiene.validator.JavaVersionConsistencyValidator;
 import io.github.abhinandanjoshii.hygiene.validator.LargeFileValidator;
 import io.github.abhinandanjoshii.hygiene.validator.MergeConflictValidator;
 import io.github.abhinandanjoshii.hygiene.validator.SensitiveFileValidator;
 import io.github.abhinandanjoshii.hygiene.validator.SnapshotDependencyValidator;
+import io.github.abhinandanjoshii.hygiene.validator.SystemOutValidator;
+import io.github.abhinandanjoshii.hygiene.validator.TodoCommentValidator;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import java.io.File;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Entry point for the {@code hygiene:check} goal.
  *
- * <p>Runs all registered hygiene validators against the project directory,
- * aggregates {@link Finding} instances, prints a structured report, and
- * enforces the configured build-failure policy.</p>
+ * <p>Runs all registered {@link HygieneValidator} implementations, collects
+ * {@link Finding} results, prints a structured report, writes
+ * {@code target/hygiene-report.json}, and enforces the build-failure policy.</p>
  *
- * <h2>Minimal usage</h2>
- * <pre>
- *   mvn hygiene:check
- * </pre>
- *
- * <h2>Full pom.xml configuration reference</h2>
+ * <h3>Full pom.xml configuration reference</h3>
  * <pre>{@code
  * <plugin>
  *   <groupId>io.github.abhinandanjoshii</groupId>
  *   <artifactId>hygiene-maven-plugin</artifactId>
- *   <version>0.3.0</version>
+ *   <version>0.4.0</version>
  *   <configuration>
  *     <failOnError>true</failOnError>
  *     <failOnWarning>false</failOnWarning>
  *     <skip>false</skip>
  *     <maxFileSizeMb>10</maxFileSizeMb>
+ *     <todoThreshold>20</todoThreshold>
+ *     <generateReport>true</generateReport>
  *     <additionalScannedExtensions>
  *       <extension>.tf</extension>
+ *       <extension>.sh</extension>
  *     </additionalScannedExtensions>
  *     <additionalSensitiveFilenames>
  *       <filename>db-credentials.conf</filename>
@@ -55,12 +61,14 @@ import java.util.List;
  *     </additionalSensitiveExtensions>
  *     <readmeCandidates>
  *       <candidate>README.md</candidate>
+ *       <candidate>README.rst</candidate>
  *     </readmeCandidates>
  *     <licenseCandidates>
  *       <candidate>LICENSE</candidate>
+ *       <candidate>COPYING</candidate>
  *     </licenseCandidates>
  *     <additionalSkipDirectories>
- *       <directory>vendor</directory>
+ *       <directory>.terraform</directory>
  *     </additionalSkipDirectories>
  *     <additionalRequiredGitignorePatterns>
  *       <pattern>*.tfstate</pattern>
@@ -68,22 +76,19 @@ import java.util.List;
  *   </configuration>
  * </plugin>
  * }</pre>
- *
- * @since 0.3.0
  */
 @Mojo(name = "check", threadSafe = true)
 public class HygieneMojo extends AbstractMojo {
 
-    /**
-     * Default constructor for HygieneMojo.
-     * Instantiated by the Maven plugin framework at runtime via reflection.
-     */
-    public HygieneMojo() {
-        // Maven instantiates this via reflection
-    }
+    // -------------------------------------------------------------------------
+    // Maven-injected fields
+    // -------------------------------------------------------------------------
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
+
+    @Parameter(defaultValue = "${project.build.directory}", readonly = true)
+    private File buildDirectory;
 
     @Parameter(property = "hygiene.maxFileSizeMb", defaultValue = "10")
     private int maxFileSizeMb;
@@ -96,27 +101,33 @@ public class HygieneMojo extends AbstractMojo {
     @Parameter(property = "hygiene.failOnWarning", defaultValue = "false")
     private boolean failOnWarning;
 
-    /** When {@code true}, skips all checks. Useful for bypassing in specific Maven profiles. */
+    /** When {@code true}, skips all checks. */
     @Parameter(property = "hygiene.skip", defaultValue = "false")
     private boolean skip;
 
-    @Parameter
-    private List<String> additionalScannedExtensions         = new ArrayList<>();
+    @Parameter(property = "hygiene.generateReport", defaultValue = "true")
+    private boolean generateReport;
+
+    @Parameter(property = "hygiene.todoThreshold", defaultValue = "20")
+    private int todoThreshold;
 
     @Parameter
-    private List<String> additionalSensitiveFilenames        = new ArrayList<>();
+    private List<String> additionalScannedExtensions = new ArrayList<>();
 
     @Parameter
-    private List<String> additionalSensitiveExtensions       = new ArrayList<>();
+    private List<String> additionalSensitiveFilenames = new ArrayList<>();
 
     @Parameter
-    private List<String> readmeCandidates                    = new ArrayList<>();
+    private List<String> additionalSensitiveExtensions = new ArrayList<>();
 
     @Parameter
-    private List<String> licenseCandidates                   = new ArrayList<>();
+    private List<String> readmeCandidates = new ArrayList<>();
 
     @Parameter
-    private List<String> additionalSkipDirectories           = new ArrayList<>();
+    private List<String> licenseCandidates = new ArrayList<>();
+
+    @Parameter
+    private List<String> additionalSkipDirectories = new ArrayList<>();
 
     @Parameter
     private List<String> additionalRequiredGitignorePatterns = new ArrayList<>();
@@ -124,7 +135,7 @@ public class HygieneMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoFailureException {
         if (skip) {
-            getLog().info("HygieneMojo: skipping all checks (hygiene.skip=true)");
+            getLog().info("HygieneMojo: skipping (hygiene.skip=true)");
             return;
         }
 
@@ -136,6 +147,18 @@ public class HygieneMojo extends AbstractMojo {
 
         List<Finding> allFindings = runValidators(context);
         printReport(allFindings);
+
+        if (generateReport) {
+            HygieneReport report = new HygieneReport(
+                    project.getGroupId(),
+                    project.getArtifactId(),
+                    project.getVersion(),
+                    Instant.now(),
+                    allFindings
+            );
+            HygieneReportWriter.write(report, buildDirectory, getLog());
+        }
+
         enforcePolicy(allFindings);
     }
 
@@ -148,6 +171,7 @@ public class HygieneMojo extends AbstractMojo {
         cfg.setLicenseCandidates(licenseCandidates);
         cfg.setAdditionalSkipDirectories(additionalSkipDirectories);
         cfg.setAdditionalRequiredGitignorePatterns(additionalRequiredGitignorePatterns);
+        cfg.setTodoThreshold(todoThreshold);
         return cfg;
     }
 
@@ -155,11 +179,15 @@ public class HygieneMojo extends AbstractMojo {
         return List.of(
                 new FileExistenceValidator(),
                 new SnapshotDependencyValidator(),
+                new DependencyVersionPinningValidator(),
+                new JavaVersionConsistencyValidator(),
                 new LargeFileValidator(),
                 new MergeConflictValidator(),
                 new HardcodedSecretValidator(),
                 new SensitiveFileValidator(),
-                new GitignoreValidator()
+                new GitignoreValidator(),
+                new SystemOutValidator(),
+                new TodoCommentValidator()
         );
     }
 
@@ -169,11 +197,6 @@ public class HygieneMojo extends AbstractMojo {
             try {
                 all.addAll(validator.validate(context));
             } catch (Exception e) {
-                all.add(Finding.of(
-                        Severity.ERROR,
-                        validator.getClass().getSimpleName(),
-                        "Validator threw an unexpected exception and could not complete: " + e.getMessage()
-                ));
                 getLog().error("Validator '" + validator.getClass().getSimpleName()
                         + "' threw an unexpected exception: " + e.getMessage(), e);
             }
@@ -183,9 +206,9 @@ public class HygieneMojo extends AbstractMojo {
 
     private void printReport(List<Finding> findings) {
         getLog().info("");
-        getLog().info("------------------------------------------");
+        getLog().info("â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€");
         getLog().info("  HygieneMojo Report");
-        getLog().info("------------------------------------------");
+        getLog().info("â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€");
 
         if (findings.isEmpty()) {
             getLog().info("  All hygiene checks passed.");
@@ -203,10 +226,10 @@ public class HygieneMojo extends AbstractMojo {
         long warnings = findings.stream().filter(f -> f.severity() == Severity.WARNING).count();
         long infos    = findings.stream().filter(f -> f.severity() == Severity.INFO).count();
 
-        getLog().info("------------------------------------------");
+        getLog().info("â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€");
         getLog().info(String.format("  Summary: %d error(s)  %d warning(s)  %d info(s)",
                 errors, warnings, infos));
-        getLog().info("------------------------------------------");
+        getLog().info("â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€");
         getLog().info("");
     }
 
@@ -216,13 +239,13 @@ public class HygieneMojo extends AbstractMojo {
 
         if (failOnError && hasErrors) {
             throw new MojoFailureException(
-                    "HygieneMojo: build failed — ERROR-level hygiene violations detected. "
+                    "HygieneMojo: build failed â€” ERROR-level hygiene violations detected. "
                             + "Review the findings above and resolve them before releasing."
             );
         }
         if (failOnWarning && hasWarnings) {
             throw new MojoFailureException(
-                    "HygieneMojo: build failed — WARNING-level hygiene violations detected "
+                    "HygieneMojo: build failed â€” WARNING-level hygiene violations detected "
                             + "(failOnWarning=true). Review the findings above."
             );
         }

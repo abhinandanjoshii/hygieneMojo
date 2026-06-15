@@ -223,7 +223,7 @@ public final class HygieneConfiguration {
         this.additionalRequiredGitignorePatterns = v != null ? new ArrayList<>(v) : new ArrayList<>();
     }
 
-    void setTodoThreshold(int v) {
+    public void setTodoThreshold(int v) {
         this.todoThreshold = v;
     }
 
