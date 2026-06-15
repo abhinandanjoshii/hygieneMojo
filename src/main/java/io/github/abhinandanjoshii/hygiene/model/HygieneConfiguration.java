@@ -144,6 +144,13 @@ public final class HygieneConfiguration {
         return Collections.unmodifiableList(additionalRequiredGitignorePatterns);
     }
 
+    /**
+     * Maximum number of TODO/FIXME/HACK/XXX/NOSONAR comments allowed before
+     * {@link io.github.abhinandanjoshii.hygiene.validator.TodoCommentValidator}
+     * escalates its finding from {@code INFO} to {@code WARNING}.
+     *
+     * <p>Default: {@code 20}. Set to {@code 0} to warn on any occurrence.</p>
+     */
     public int getTodoThreshold() {
         return todoThreshold;
     }

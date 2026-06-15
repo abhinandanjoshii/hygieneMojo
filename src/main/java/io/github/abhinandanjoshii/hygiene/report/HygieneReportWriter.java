@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+// TODO : Add Javadocs to each
 public final class HygieneReportWriter {
 
     public static final String REPORT_FILENAME = "hygiene-report.json";

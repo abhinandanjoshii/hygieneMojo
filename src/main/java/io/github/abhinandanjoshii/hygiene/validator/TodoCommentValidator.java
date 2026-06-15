@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+// TODO : Add Javadocs to each
 public class TodoCommentValidator implements HygieneValidator{
 
     private static final Set<String> SCANNED_EXTENSIONS = Set.of(

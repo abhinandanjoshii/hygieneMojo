@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+// TODO : Add Javadocs to each
 public class SystemOutValidator implements HygieneValidator{
 
     private static final Set<String> SCANNED_EXTENSIONS = Set.of(".java");

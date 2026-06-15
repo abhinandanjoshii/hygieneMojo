@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
+// TODO : Add Javadocs to each
 public final class HygieneReport {
 
     private final String projectGroupId;
